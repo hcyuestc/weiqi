@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  weiqi-game:
+    container_name: weiqi-game
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    volumes:
+      - ./dist:/usr/share/nginx/html:ro
+    environment:
+      - TZ=Asia/Shanghai
