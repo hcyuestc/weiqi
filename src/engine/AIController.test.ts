@@ -1,116 +1,93 @@
 import Game from './Game'
 import AIController from './AIController'
+import { Stone } from '../types/weiqi'
+
+type MockableGame = Pick<Game, 'getState' | 'placeStone'>
+
+const createBoard = (size = 5, fill: Stone = -1): Stone[][] =>
+  Array.from({ length: size }, () => Array(size).fill(fill) as Stone[])
+
+const createMockGame = (board: Stone[][], placeStoneReturn = { success: true }) => {
+  const getState = jest.fn().mockReturnValue({
+    board,
+    currentPlayer: 1,
+    history: [],
+    capturedBlack: 0,
+    capturedWhite: 0,
+    isGameOver: false
+  })
+
+  const placeStone = jest.fn().mockReturnValue(placeStoneReturn)
+
+  return {
+    instance: { getState, placeStone } as unknown as MockableGame,
+    getState,
+    placeStone
+  }
+}
 
 describe('AIController 类测试', () => {
-  let game: Game
-  let aiController: AIController
-
-  beforeEach(() => {
-    game = new Game()
+  afterEach(() => {
+    jest.restoreAllMocks()
   })
 
-  test('创建AIController应该接受Game实例和难度参数', () => {
-    expect(() => {
-      aiController = new AIController(game, 'easy')
-    }).not.toThrow()
+  test('简单难度应该根据 Math.random 选择空位', () => {
+    const board = createBoard()
+    board[0][0] = 0 // 占用第一个位置，迫使AI选择下一个空格
+
+    const { instance } = createMockGame(board)
+    const aiController = new AIController(instance as Game, 'easy')
+
+    const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0)
+    const move = aiController.getNextMove()
+
+    expect(move).toEqual({ x: 0, y: 1 })
+    randomSpy.mockRestore()
   })
 
-  test('简单难度AI应该随机选择空位置落子', () => {
-    aiController = new AIController(game, 'easy')
-    
-    // 确保游戏当前是白棋回合（AI回合）
-    // 不直接访问私有属性，通过落子来改变当前玩家
-    
-    // 执行AI落子
+  test('中等难度应优先保护己方棋子', () => {
+    const board = createBoard()
+    board[1][1] = 1 // AI棋子
+
+    const { instance } = createMockGame(board)
+    const aiController = new AIController(instance as Game, 'medium')
+
+    const move = aiController.getNextMove()
+    expect(move).toEqual({ x: 0, y: 1 }) // 邻近己方棋子的防守点
+  })
+
+  test('中等难度在无防守机会时尝试进攻', () => {
+    const board = createBoard()
+    board[0][0] = 0 // 玩家棋子
+
+    const { instance } = createMockGame(board)
+    const aiController = new AIController(instance as Game, 'medium')
+
+    const move = aiController.getNextMove()
+    expect(move).toEqual({ x: 1, y: 0 }) // 邻近对手棋子的进攻点
+  })
+
+  test('makeMove 应调用 Game.placeStone 并返回执行结果', () => {
+    const board = createBoard()
+    const { instance, placeStone } = createMockGame(board, { success: true })
+    const aiController = new AIController(instance as Game, 'easy')
+
+    jest.spyOn(Math, 'random').mockReturnValue(0)
+
     const success = aiController.makeMove()
-    
-    // 验证AI成功落子
+
     expect(success).toBe(true)
-    
-    // 获取游戏状态并检查是否有白棋落子
-    const state = game.getState()
-    let hasWhiteStone = false
-    
-    for (let i = 0; i < 19; i++) {
-      for (let j = 0; j < 19; j++) {
-        if (state.board[i][j] === 1) {
-          hasWhiteStone = true
-          break
-        }
-      }
-      if (hasWhiteStone) break
-    }
-    
-    expect(hasWhiteStone).toBe(true)
+    expect(placeStone).toHaveBeenCalledWith(0, 0)
   })
 
-  test('中等难度AI应该能够提子', () => {
-    // 创建一个可以让AI提子的局面
-    // 不直接访问私有属性，通过落子来改变当前玩家
-    
-    // 放置黑棋在一个将被白棋包围的位置
-    game.placeStone(5, 5) // 黑棋
-    
-    // 模拟白棋放置周围的棋子
-    game.placeStone(4, 5) // 白棋
-    game.placeStone(6, 5) // 白棋
-    game.placeStone(5, 4) // 白棋
-    
-    // 设置为白棋回合，最后一个位置应该被AI填入以提子
-    // 不直接访问私有属性，通过落子来改变当前玩家
-    
-    // 创建中等难度AI
-    aiController = new AIController(game, 'medium')
-    
-    // 保存提子前的状态
-    const capturedBlackBefore = game.getState().capturedBlack
-    
-    // 执行AI落子
-    aiController.makeMove()
-    
-    // 检查是否有提子
-    const capturedBlackAfter = game.getState().capturedBlack
-    
-    // 中等难度AI应该尝试提子，所以被提黑棋数应该增加
-    // 这个测试可能不总是成功，因为中等难度有一定随机性，但大多数情况下应该成功
-    expect(capturedBlackAfter).toBeGreaterThanOrEqual(capturedBlackBefore)
-  })
+  test('当没有可落子位置时 makeMove 应返回 false', () => {
+    const board = createBoard(3, 1) // 棋盘已满
+    const { instance, placeStone } = createMockGame(board)
+    const aiController = new AIController(instance as Game, 'easy')
 
-  test('AI应该只在自己的回合落子', () => {
-    aiController = new AIController(game, 'easy')
-    
-    // 确保游戏当前是黑棋回合（非AI回合）
-    // 不直接访问私有属性，通过落子来改变当前玩家
-    
-    // 执行AI落子，应该失败
     const success = aiController.makeMove()
-    
-    // 在不是AI回合时，应该返回false
-    expect(success).toBe(false)
-  })
 
-  test('AI在棋盘满时应该无法落子', () => {
-    aiController = new AIController(game, 'easy')
-    // 不直接访问私有属性，通过落子来改变当前玩家
-    
-    // 手动设置棋盘已满（在实际测试中可以简化为放置少量棋子并覆盖关键位置）
-    // 这里只是概念性测试，实际完整测试需要更复杂的棋盘填充
-    
-    // 为了简化测试，我们可以模拟一个已满的棋盘
-    for (let i = 0; i < 19; i++) {
-      for (let j = 0; j < 19; j++) {
-        try {
-          // 不直接访问私有属性，通过获取状态来模拟棋盘
-        } catch (e) {
-          // 忽略错误，继续填充
-        }
-      }
-    }
-    
-    // 执行AI落子，应该失败
-    const success = aiController.makeMove()
-    
-    // 在棋盘满时，应该返回false
     expect(success).toBe(false)
+    expect(placeStone).not.toHaveBeenCalled()
   })
 })

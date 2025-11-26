@@ -127,6 +127,7 @@ const Board: React.FC<BoardProps> = ({
           const isBlack = board[i][j] === 0
           stonesList.push(
             <circle
+              data-testid={isBlack ? 'stone-black' : 'stone-white'}
               key={`stone-${i}-${j}`}
               cx={j * cellSize}
               cy={i * cellSize}
@@ -177,6 +178,7 @@ const Board: React.FC<BoardProps> = ({
         boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
       }}>
         <svg
+          data-testid="go-board"
           width={size + 2}
           height={size + 2}
           onClick={handleClick}
@@ -191,7 +193,7 @@ const Board: React.FC<BoardProps> = ({
           {stones}
         </svg>
       </div>
-      <div className="current-player-indicator">
+      <div className="current-player-indicator" data-testid="current-player-indicator">
         <div className={`stone-indicator ${currentPlayer === 0 ? 'active' : ''}`}>
           黑棋回合
         </div>

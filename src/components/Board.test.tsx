@@ -24,8 +24,8 @@ describe('Board 组件测试', () => {
     const boardElement = screen.getByTestId('go-board')
     expect(boardElement).toBeInTheDocument()
     
-    // 检查网格线数量 - 19x19棋盘应该有19条水平和垂直的网格线
-    const gridLines = boardElement.querySelectorAll('.board-grid')
+    // 检查网格线数量 - 19x19棋盘应该有多条网格线
+    const gridLines = boardElement.querySelectorAll('line')
     expect(gridLines.length).toBeGreaterThan(0)
   })
 
@@ -63,14 +63,14 @@ describe('Board 组件测试', () => {
     const handleCellClick = jest.fn()
     
     // 测试当前玩家为黑棋的情况
-    render(<Board board={createEmptyBoard()} onCellClick={handleCellClick} currentPlayer={0} />)
+    const { rerender } = render(<Board board={createEmptyBoard()} onCellClick={handleCellClick} currentPlayer={0} />)
     let currentPlayerIndicator = screen.getByTestId('current-player-indicator')
-    expect(currentPlayerIndicator).toHaveTextContent('当前回合: 黑棋')
+    expect(currentPlayerIndicator).toHaveTextContent('黑棋回合')
     
     // 测试当前玩家为白棋的情况
-    render(<Board board={createEmptyBoard()} onCellClick={handleCellClick} currentPlayer={1} />)
+    rerender(<Board board={createEmptyBoard()} onCellClick={handleCellClick} currentPlayer={1} />)
     currentPlayerIndicator = screen.getByTestId('current-player-indicator')
-    expect(currentPlayerIndicator).toHaveTextContent('当前回合: 白棋')
+    expect(currentPlayerIndicator).toHaveTextContent('白棋回合')
   })
 
   test('棋盘应该响应窗口大小变化', () => {

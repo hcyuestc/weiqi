@@ -6,27 +6,48 @@ import Game from './engine/Game'
 // Mock Game和其他依赖
 jest.mock('./engine/Game')
 const MockGame = Game as jest.MockedClass<typeof Game>
+type MockedGameInstance = {
+  getState: jest.Mock
+  placeStone: jest.Mock
+  undoMove: jest.Mock
+  resetGame: jest.Mock
+  calculateWinner: jest.Mock
+}
+
+let latestGameInstance: MockedGameInstance | null = null
+const createGameMock = (): MockedGameInstance => ({
+  getState: jest.fn().mockReturnValue({
+    board: Array(19).fill(null).map(() => Array(19).fill(-1)),
+    currentPlayer: 0,
+    history: [],
+    capturedBlack: 0,
+    capturedWhite: 0,
+    isGameOver: false
+  }),
+  placeStone: jest.fn().mockReturnValue({ success: true }),
+  undoMove: jest.fn().mockReturnValue(true),
+  resetGame: jest.fn(),
+  calculateWinner: jest.fn()
+})
+
+const getLatestGameInstance = () => {
+  if (!latestGameInstance) {
+    throw new Error('Mock Game 实例尚未创建')
+  }
+  return latestGameInstance
+}
 
 describe('App 组件测试', () => {
   beforeEach(() => {
     // 重置所有模拟
     MockGame.mockClear()
+    latestGameInstance = null
     
     // 设置Game的mock实现
-    MockGame.mockImplementation(() => ({
-      getState: jest.fn().mockReturnValue({
-        board: Array(19).fill(null).map(() => Array(19).fill(-1)),
-        currentPlayer: 0,
-        history: [],
-        capturedBlack: 0,
-        capturedWhite: 0,
-        isGameOver: false
-      }),
-      placeStone: jest.fn().mockReturnValue({ success: true }),
-      undoMove: jest.fn().mockReturnValue(true),
-      resetGame: jest.fn(),
-      calculateWinner: jest.fn()
-    }) as unknown as Game)
+    MockGame.mockImplementation(() => {
+      latestGameInstance = createGameMock()
+      return latestGameInstance as unknown as Game
+    })
   })
 
   test('渲染App组件时应该显示游戏界面', () => {
@@ -57,7 +78,7 @@ describe('App 组件测试', () => {
     fireEvent.click(boardElement, { clientX: 200, clientY: 200 })
     
     // 验证placeStone是否被调用
-    const mockGameInstance = MockGame.mock.instances[0]
+    const mockGameInstance = getLatestGameInstance()
     expect(mockGameInstance.placeStone).toHaveBeenCalled()
   })
 
@@ -74,7 +95,7 @@ describe('App 组件测试', () => {
     fireEvent.click(undoButton)
     
     // 验证undoMove是否被调用
-    const mockGameInstance = MockGame.mock.instances[0]
+    const mockGameInstance = getLatestGameInstance()
     expect(mockGameInstance.undoMove).toHaveBeenCalled()
   })
 
@@ -91,7 +112,7 @@ describe('App 组件测试', () => {
     fireEvent.click(resetButton)
     
     // 验证resetGame是否被调用
-    const mockGameInstance = MockGame.mock.instances[0]
+    const mockGameInstance = getLatestGameInstance()
     expect(mockGameInstance.resetGame).toHaveBeenCalled()
   })
 
@@ -108,7 +129,7 @@ describe('App 组件测试', () => {
     fireEvent.click(calculateButton)
     
     // 验证calculateWinner是否被调用
-    const mockGameInstance = MockGame.mock.instances[0]
+    const mockGameInstance = getLatestGameInstance()
     expect(mockGameInstance.calculateWinner).toHaveBeenCalled()
   })
 
