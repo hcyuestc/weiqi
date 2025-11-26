@@ -286,7 +286,11 @@ class Game {
 
   // 获取当前游戏状态
   getState(): GameState {
-    return { ...this.state }
+    return {
+      ...this.state,
+      board: this.copyBoard(this.state.board),
+      history: this.state.history.map(board => this.copyBoard(board))
+    }
   }
 
   // 重置游戏
