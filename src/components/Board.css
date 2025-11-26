@@ -1,0 +1,134 @@
+.board-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.board-wrapper {
+  background-color: #e6b87d;
+  border: 1px solid #8b4513;
+  border-radius: 4px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+  transition: box-shadow 0.3s ease;
+}
+
+.board-wrapper:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 确保SVG能够正确接收点击事件 */
+.board-wrapper svg {
+  display: block;
+  cursor: pointer;
+}
+
+/* 棋子悬停效果 */
+.board-wrapper svg:hover {
+  /* 可以在这里添加一些悬停效果 */
+}
+
+/* 棋子指示器样式 */
+.current-player-indicator {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.stone-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background-color: #f0f0f0;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  position: relative;
+}
+
+.stone-indicator::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid #333;
+}
+
+.stone-indicator:nth-child(1)::before {
+  background-color: #000;
+}
+
+.stone-indicator:nth-child(2)::before {
+  background-color: #fff;
+}
+
+.stone-indicator.active {
+  background-color: #4a90e2;
+  color: white;
+  transform: scale(1.05);
+}
+
+.stone-indicator.active:nth-child(1)::before,
+.stone-indicator.active:nth-child(2)::before {
+  border-color: white;
+}
+
+/* 棋子动画效果 */
+.stone-animated {
+  animation: stoneAppear 0.3s ease-out;
+  transform-origin: center;
+}
+
+@keyframes stoneAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 淡入动画 */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .board-wrapper {
+    padding: 15px;
+  }
+  
+  .current-player-indicator {
+    gap: 15px;
+  }
+  
+  .stone-indicator {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .board-wrapper {
+    padding: 10px;
+  }
+  
+  .current-player-indicator {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

@@ -1,0 +1,204 @@
+.game-controls-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 100%;
+}
+
+.game-info {
+  background-color: white;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.captured-stones-info {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 10px;
+}
+
+.stone-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.stone-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid #333;
+}
+
+.stone-icon.black {
+  background-color: #000;
+}
+
+.stone-icon.white {
+  background-color: #fff;
+}
+
+.game-result {
+  text-align: center;
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #f0f8ff;
+  border-radius: 4px;
+  border-left: 4px solid #4a90e2;
+}
+
+.game-result h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.control-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.control-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 按钮点击波纹效果 */
+.control-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%, -50%);
+  transform-origin: 50% 50%;
+}
+
+.control-btn:focus::after {
+  animation: ripple 0.5s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.5;
+  }
+  20% {
+    transform: scale(25, 25);
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(40, 40);
+  }
+}
+
+.control-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  filter: brightness(1.05);
+}
+
+.control-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  filter: brightness(0.95);
+}
+
+.control-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.undo-btn {
+  background-color: #6c757d;
+  color: white;
+}
+
+.undo-btn:hover:not(:disabled) {
+  background-color: #5a6268;
+}
+
+.calculate-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.calculate-btn:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.reset-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.reset-btn:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+/* 淡入动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .captured-stones-info {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .stone-count {
+    justify-content: center;
+  }
+  
+  .control-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .control-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-controls-container {
+    gap: 15px;
+  }
+  
+  .game-info {
+    padding: 12px;
+  }
+  
+  .control-btn {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+  }
+}
