@@ -7,7 +7,7 @@ export class LeelaZeroService {
 
   private constructor() {
     // 私有构造函数，防止直接实例化
-    // this.worker = new Worker(new URL('../workers/leela-zero-worker.ts', import.meta.url));
+    this.worker = new Worker(new URL('../workers/leela-zero-worker.ts', import.meta.url));
   }
 
   public static getInstance(): LeelaZeroService {
@@ -29,7 +29,7 @@ export class LeelaZeroService {
 
     try {
       // 创建Web Worker来运行Leela Zero
-      // this.worker = new Worker(new URL('../workers/leela-zero-worker.ts', import.meta.url));
+      this.worker = this.worker || new Worker(new URL('../workers/leela-zero-worker.ts', import.meta.url));
       
       // 等待初始化完成的消息
       await new Promise<void>((resolve, reject) => {

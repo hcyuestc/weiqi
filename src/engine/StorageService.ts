@@ -7,7 +7,7 @@ export interface GameRecord {
   name: string
   gameState: GameState
   gameMode: 'human' | 'ai'
-  difficulty?: 'easy' | 'medium' | 'hard'
+  difficulty?: 'easy' | 'medium' | 'hard' | 'leela'
 }
 
 /**
@@ -24,7 +24,7 @@ class StorageService {
    * @param difficulty AI难度（如果适用）
    * @returns 保存的游戏记录ID
    */
-  saveGameRecord(name: string, gameState: GameState, gameMode: 'human' | 'ai', difficulty?: 'easy' | 'medium' | 'hard'): string {
+  saveGameRecord(name: string, gameState: GameState, gameMode: 'human' | 'ai', difficulty?: 'easy' | 'medium' | 'hard' | 'leela'): string {
     try {
       const recordId = `game_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
       const newRecord: GameRecord = {

@@ -125,7 +125,7 @@ class MCTSNode {
   }
 
   // 模拟阶段：随机游玩直到游戏结束
-  simulateRandomPlay(initialState: Stone[][], initialPlayer: Stone, game: Game, simpleCapture: (board: Stone[][], x: number, y: number, player: Stone) => void, copyBoard: (board: Stone[][]) => Stone[][]): number {
+  simulateRandomPlay(initialState: Stone[][], initialPlayer: Stone, simpleCapture: (board: Stone[][], x: number, y: number, player: Stone) => void, copyBoard: (board: Stone[][]) => Stone[][]): number {
     let state = copyBoard(initialState)
     let currentPlayer = initialPlayer
     let moveCount = 0
@@ -399,15 +399,11 @@ class MCTSNode {
 export class AIController {
   private game: Game
   private aiLevel: 'easy' | 'medium' | 'hard' | 'leela' = 'easy'
-  private boardSize: number
-  private komi: number
   private leelaZeroService: LeelaZeroService
 
-  constructor(game: Game, level: 'easy' | 'medium' | 'hard' | 'leela' = 'easy', boardSize: number = 9, komi: number = 6.5) {
+  constructor(game: Game, level: 'easy' | 'medium' | 'hard' | 'leela' = 'easy', _boardSize: number = 9, _komi: number = 6.5) {
     this.game = game
     this.aiLevel = level
-    this.boardSize = boardSize
-    this.komi = komi
     this.leelaZeroService = LeelaZeroService.getInstance()
   }
 
@@ -561,13 +557,11 @@ export class AIController {
     
     // 限制搜索时间和迭代次数
     const startTime = Date.now()
-    const timeLimit = 10000 // 10秒时间限制，给予更充分的思考时间
+    const timeLimit = 800
     let iterations = 0
-    const maxIterations = 10000 // 最大迭代次数
+    const maxIterations = 2000
     
-    // 用于跟踪最佳动作
-    let bestMove: Position | null = null
-    let bestVisits = -1
+    // 用于跟踪最佳动作（已简化为综合评分挑选）
     
     while (Date.now() - startTime < timeLimit && iterations < maxIterations) {
       let node: MCTSNode | null = rootNode
@@ -603,7 +597,7 @@ export class AIController {
       let simulationPlayer = player
       if (expandedNode) {
         // 如果进行了扩展，模拟从扩展节点开始
-        const result = node.simulateRandomPlay(node.state, simulationPlayer, this.game, this.simpleCapture.bind(this), this.copyBoard.bind(this))
+    const result = node.simulateRandomPlay(node.state, simulationPlayer, this.simpleCapture.bind(this), this.copyBoard.bind(this))
         
         // 反向传播阶段
         while (node !== null) {
@@ -662,18 +656,7 @@ export class AIController {
     return this.getMediumMove(board, boardSize)
   }
 
-  // 获取合法移动
-  private getLegalMoves(board: Stone[][], boardSize: number): Position[] {
-    const moves: Position[] = []
-    for (let i = 0; i < boardSize; i++) {
-      for (let j = 0; j < boardSize; j++) {
-        if (board[i][j] === -1) {
-          moves.push({ x: i, y: j })
-        }
-      }
-    }
-    return moves
-  }
+  // 保留占位以便未来扩展更精细的合法移动生成
 
   // 检查是否形成眼位
   private isEye(board: Stone[][], x: number, y: number, player: Stone): boolean {
@@ -715,7 +698,6 @@ export class AIController {
     if (!this.isEye(board, x, y, player)) return false
     
     const boardSize = board.length
-    const opponent = player === 0 ? 1 : 0
     let diagonalOwnedCount = 0
     let diagonalCount = 0
     const diagonals = [[-1, -1], [-1, 1], [1, -1], [1, 1]] // 对角线方向

@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+leela-zero/wasm/bridge.cpp
 /.pnp
 .pnp.js
 
@@ -46,3 +47,11 @@ lerna-debug.log*
 
 # Optional stylelint cache
 .stylelintcache
+
+# Project-specific ignores
+emsdk/
+leela-zero/*
+!leela-zero/wasm/
+leela-zero/wasm/*
+!leela-zero/wasm/bridge.cpp
+public/leela-zero/*.map

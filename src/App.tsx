@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 // GameState已经在后面导入
 import Game from './engine/Game'
 import AIController from './engine/AIController'
+import { LeelaZeroService } from './engine/LeelaZeroService'
 import StorageService from './engine/StorageService'
 import Board from './components/Board'
 import GameControls from './components/GameControls'
@@ -23,7 +24,7 @@ function App() {
   })
   const [errorMessage, setErrorMessage] = useState<string>('')
   const [gameMode, setGameMode] = useState<'human' | 'ai'>('human')
-  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy')
+  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard' | 'leela'>('easy')
   const [notification, setNotification] = useState<{message: string; timestamp: number; type: 'success' | 'error' | 'warning' | 'info'} | null>(null)
   const isAIMoving = useRef(false)
 
@@ -35,6 +36,15 @@ function App() {
     if (gameMode === 'ai') {
       const newAiController = new AIController(newGame, difficulty)
       setAiController(newAiController)
+
+      if (difficulty === 'leela') {
+        const base = (import.meta as any).env?.BASE_URL || '/'
+        const wasmDir = `${base}leela-zero/`
+        const weightsPath = `${wasmDir}weights.txt.gz`
+        LeelaZeroService.getInstance().initialize(wasmDir, weightsPath).catch(() => {
+          console.error('Leela Zero 初始化失败，将回退到困难AI')
+        })
+      }
     } else {
       setAiController(null)
     }
@@ -55,12 +65,8 @@ function App() {
         
         isAIMoving.current = true
         
-        // 添加小延迟，让用户能看到当前玩家变化
-        await new Promise(resolve => setTimeout(resolve, 500))
-        
         try {
-          // 执行AI落子
-          const success = aiController.makeMove()
+          const success = await aiController.makeMove()
           if (game) {
             setGameState(game.getState())
             
@@ -174,7 +180,7 @@ function App() {
   }, [game, gameMode, difficulty, showNotification])
 
   // 处理加载游戏
-  const handleLoadGame = useCallback((savedGameState: GameState, savedGameMode: 'human' | 'ai', savedDifficulty?: 'easy' | 'medium' | 'hard') => {
+  const handleLoadGame = useCallback((savedGameState: GameState, savedGameMode: 'human' | 'ai', savedDifficulty?: 'easy' | 'medium' | 'hard' | 'leela') => {
     if (!game) return
 
     try {

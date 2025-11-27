@@ -2,7 +2,7 @@ import React from 'react'
 import './GameModeSelector.css'
 
 type GameMode = 'human' | 'ai'
-type Difficulty = 'easy' | 'medium' | 'hard'
+type Difficulty = 'easy' | 'medium' | 'hard' | 'leela'
 
 interface GameModeSelectorProps {
   gameMode: GameMode
@@ -81,6 +81,17 @@ const GameModeSelector: React.FC<GameModeSelectorProps> = ({
                 onChange={() => onDifficultyChange('hard')}
               />
               <span>困难</span>
+            </label>
+
+            <label className={`difficulty-option ${difficulty === 'leela' ? 'active' : ''}`}>
+              <input
+                type="radio"
+                name="difficulty"
+                value="leela"
+                checked={difficulty === 'leela'}
+                onChange={() => onDifficultyChange('leela')}
+              />
+              <span>Leela Zero</span>
             </label>
           </div>
         </div>

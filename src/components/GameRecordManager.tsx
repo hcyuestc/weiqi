@@ -4,7 +4,7 @@ import { GameState } from '../types/weiqi'
 import './GameRecordManager.css'
 
 interface GameRecordManagerProps {
-  onLoadGame: (gameState: GameState, gameMode: 'human' | 'ai', difficulty?: 'easy' | 'medium' | 'hard') => void
+  onLoadGame: (gameState: GameState, gameMode: 'human' | 'ai', difficulty?: 'easy' | 'medium' | 'hard' | 'leela') => void
   onSaveGame: (name: string) => void
   showNotification?: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void
 }
