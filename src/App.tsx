@@ -241,40 +241,44 @@ function App() {
       
       <main className="app-main">
         <div className="game-container">
-          <GameModeSelector 
-            gameMode={gameMode}
-            difficulty={difficulty}
-            onModeChange={setGameMode}
-            onDifficultyChange={setDifficulty}
+          <div className="game-sidebar">
+            <GameModeSelector 
+              gameMode={gameMode}
+              difficulty={difficulty}
+              onModeChange={setGameMode}
+              onDifficultyChange={setDifficulty}
+            />
+            
+            <GameRecordManager 
+            onSaveGame={handleSaveGame} 
+            onLoadGame={handleLoadGame} 
+            showNotification={showNotification}
           />
+            
+            {errorMessage && (
+              <div className="error-message">
+                {errorMessage}
+              </div>
+            )}
+            
+            {notification && (
+              <div className={`notification ${notification.type}`} onClick={() => setNotification(null)}>
+                {notification.message}
+              </div>
+            )}
+            
+            <GameControls 
+              {...gameControlsProps}
+            />
+          </div>
           
-          <GameRecordManager 
-          onSaveGame={handleSaveGame} 
-          onLoadGame={handleLoadGame} 
-          showNotification={showNotification}
-        />
-          
-          <Board 
-            board={gameState.board} 
-            onCellClick={handleCellClick} 
-            currentPlayer={gameState.currentPlayer}
-          />
-          
-          {errorMessage && (
-            <div className="error-message">
-              {errorMessage}
-            </div>
-          )}
-          
-          {notification && (
-            <div className={`notification ${notification.type}`} onClick={() => setNotification(null)}>
-              {notification.message}
-            </div>
-          )}
-          
-          <GameControls 
-            {...gameControlsProps}
-          />
+          <div className="game-board-section">
+            <Board 
+              board={gameState.board} 
+              onCellClick={handleCellClick} 
+              currentPlayer={gameState.currentPlayer}
+            />
+          </div>
         </div>
       </main>
       
